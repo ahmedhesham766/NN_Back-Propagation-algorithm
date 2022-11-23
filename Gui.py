@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import *
 from tkinter import ttk
-from tkinter import messagebox
+# from tkinter import messagebox
 
 
 def get_hidden_layers():
