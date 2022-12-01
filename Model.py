@@ -48,12 +48,16 @@ def tanh(x):
 
 class Activation(Enum):
     tanh = 0,
-    sigmoid = 1
+    sigmoid = 1,
 
 
 class DeepModel:
     def __init__(self, data: pd.DataFrame, num_layers: int, num_of_neurons: list,
                  eta: float, epoch: int, activation_function: Activation, bias: bool):
+        self.data = data
+        self.num_layers = num_layers
+        self.num_of_neurons = num_of_neurons
+
         self.activation_function = activation_function
         self.eta = eta
         self.epoch = epoch
@@ -72,9 +76,11 @@ class DeepModel:
             b = pd.DataFrame(np.ones(len(self.test_data)), columns=['bias'])
             self.x_test = pd.concat([b, self.x_test], axis=1)
 
+        # input weights
         w = np.random.rand(num_of_neurons[0], len(self.x_train.columns))
         self.weights_arr = [w]
 
+        # hidden layers weights
         for i in range(num_layers):
             if i + 1 >= num_layers:
                 break
@@ -84,10 +90,11 @@ class DeepModel:
             w = np.random.rand(num_of_neurons[i + 1], d)
             self.weights_arr.append(w)
 
+        # output weights
         if bias:
-            self.weights_arr.append(np.random.rand(3, num_of_neurons[len(num_of_neurons) - 1]))
+            self.weights_arr.append(np.random.rand(3, num_of_neurons[num_layers - 1] + 1))
         else:
-            self.weights_arr.append(np.random.rand(3, num_of_neurons[len(num_of_neurons)]))
+            self.weights_arr.append(np.random.rand(3, num_of_neurons[num_layers - 1]))
         # print(self.weights_arr)  # all the weight matrix
         # print(self.weights_arr[0])  # matrix of the first layer
         # print(self.weights_arr[0][2])  # weight vector of the third neuron
@@ -95,17 +102,33 @@ class DeepModel:
     def train(self):
         x = self.x_train
         y = self.y_train
+        for i in range(self.epoch):
+            for j in range(len(x)):
+                # forward feed
+                f_arr = []  # f_arr[0] the result of the activation fun for all the first layer
+                # f_arr[0][0] the result of the activation fun for the first neuron of the first layer
+                iteration_data = [x.values[j]]
+                for k in range(self.num_layers):
+                    f_layer = []
+                    for l in range(self.num_of_neurons[k]):
+                        # print(self.weights_arr[k][l])
+                        if self.activation_function == Activation.sigmoid:
+                            f_layer.append(sigmoid(np.transpose(self.weights_arr[k][l]).dot(iteration_data[k])))
+                        elif self.activation_function == Activation.tanh:
+                            f_layer.append(tanh(np.transpose(self.weights_arr[k][l]).dot(iteration_data[k])))
+                    # print(f_layer)
+                    f_arr.append(f_layer)
+                    iteration_data.append(f_layer)
+                # print(f_arr)
+                # backward feed
+                # for k in (self.num_layers):
 
-        # for i in range(epoch):
-        #     for j in range(len(data)):
-        #         for k in range(num_layers):
-        #             for l in range(num_of_neurons[k]): # must add 1 for the bias todo
 
 
 data = preprocess(dataset)
-m = DeepModel(data=data, num_layers=3, num_of_neurons=[5, 2, 3], eta=0.001,
-              epoch=100, activation_function=Activation.sigmoid, bias=True)
-
+m = DeepModel(data=data, num_layers=2, num_of_neurons=[4, 2], eta=0.001,
+              epoch=10, activation_function=Activation.sigmoid, bias=False)
+m.train()
 # import cv2
 # train_data = pd.read_csv('mnist_train.csv')
 # img = train_data.iloc[0][1:]
