@@ -95,7 +95,7 @@ class DeepModel:
             self.weights_arr.append(np.random.rand(3, num_of_neurons[num_layers - 1] + 1))
         else:
             self.weights_arr.append(np.random.rand(3, num_of_neurons[num_layers - 1]))
-        # print(self.weights_arr)  # all the weight matrix
+        print(self.weights_arr)  # all the weight matrix
         # print(self.weights_arr[0])  # matrix of the first layer
         # print(self.weights_arr[0][2])  # weight vector of the third neuron
 
@@ -105,24 +105,64 @@ class DeepModel:
         for i in range(self.epoch):
             for j in range(len(x)):
                 # forward feed
-                f_arr = []  # f_arr[0] the result of the activation fun for all the first layer
-                # f_arr[0][0] the result of the activation fun for the first neuron of the first layer
-                iteration_data = [x.values[j]]
-                for k in range(self.num_layers):
-                    f_layer = []
-                    for l in range(self.num_of_neurons[k]):
-                        # print(self.weights_arr[k][l])
-                        if self.activation_function == Activation.sigmoid:
-                            f_layer.append(sigmoid(np.transpose(self.weights_arr[k][l]).dot(iteration_data[k])))
-                        elif self.activation_function == Activation.tanh:
-                            f_layer.append(tanh(np.transpose(self.weights_arr[k][l]).dot(iteration_data[k])))
-                    # print(f_layer)
-                    f_arr.append(f_layer)
-                    iteration_data.append(f_layer)
+                f_nets = self.Forward_Feed(j, x)
                 # print(f_arr)
                 # backward feed
-                # for k in (self.num_layers):
+                out = []
+                if y.values[j] == 0:
+                    out = [1, 0, 0]
+                elif y.values[j] == 0.5:
+                    out = [0, 1, 0]
+                elif y.values[j] == 1:
+                    out = [0, 0, 1]
 
+                self.Backward_Feed(f_nets, out)
+
+    def Backward_Feed(self, f_nets, out):
+        sigma_arr = []
+        for k in reversed(range(self.num_layers+1)):
+            if k == self.num_layers:
+                sigma = []
+                for l in range(3):
+                    temp = f_nets[len(f_nets) - 1][l]
+                    sigma.append((out[l] - temp) * temp * (1 - temp))
+                sigma_arr.append(sigma)  # arr of sigmas adds the output
+            else:
+                sigma = []
+                for m in range(len(f_nets[k])):
+                    print(self.weights_arr[k][m])
+                    s = np.transpose(sigma_arr[0]).dot(self.weights_arr[k][m])
+                    # s = 0
+                    # for l in range(len(sigma_arr[k - 1])):
+                    #     s += sigma_arr[0][l] * self.weights_arr[k][l]
+                    sigma.append(s * f_nets[k][m])
+                sigma_arr.insert(0, sigma)
+        return sigma_arr
+
+    def Forward_Feed(self, j, x):
+        f_arr = []  # f_arr[0] the result of the activation fun for all the first layer
+        # f_arr[0][0] the result of the activation fun for the first neuron of the first layer
+        iteration_data = [x.values[j]]
+        for i in range(self.num_layers + 1):
+            f_layer = []
+            if i != self.num_layers:  # not output layer
+                for j in range(self.num_of_neurons[i]):
+                    # print(self.weights_arr[k][l])
+                    if self.activation_function == Activation.sigmoid:
+                        f_layer.append(sigmoid(np.transpose(self.weights_arr[i][j]).dot(iteration_data[i])))
+                    elif self.activation_function == Activation.tanh:
+                        f_layer.append(tanh(np.transpose(self.weights_arr[i][j]).dot(iteration_data[i])))
+            else:
+                for j in range(3):
+                    if self.activation_function == Activation.sigmoid:
+                        f_layer.append(sigmoid(np.transpose(self.weights_arr[i][j]).dot(iteration_data[i])))
+                    elif self.activation_function == Activation.tanh:
+                        f_layer.append(tanh(np.transpose(self.weights_arr[i][j]).dot(iteration_data[i])))
+
+            # print(f_layer)
+            f_arr.append(f_layer)
+            iteration_data.append(f_layer)
+        return f_arr
 
 
 data = preprocess(dataset)
