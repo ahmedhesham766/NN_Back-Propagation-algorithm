@@ -5,47 +5,55 @@ import Model
 from Model import preprocess
 from Model import DeepModel
 from Model import Activation
-# from tkinter import messagebox
 
-def act_changed (event):
-    activations[0]:Activation(activation_function_cmb['values'].index(activation_function_cmb.get()))
+
+def act_changed(event):
+    activations[0]: Activation(activation_function_cmb['values'].index(activation_function_cmb.get()))
+
+
+def print_act(event):
+    print(selected_activation_function.get())
+
 
 def get_hidden_layers():
     hl = int(HiddenLayers_txt.get())
-    print(hl)
+    # print(hl)
     return hl
 
 
 def get_num_neurons():
     s_non = NumOfNeurons_txt.get()
     non = [int(s) for s in s_non.split(',')]
-    print(non)
+    # print(non)
     return non
 
 
 def get_eta():
     eta = float(eta_txt.get())
-    print(eta)
+    # print(eta)
     return eta
 
 
 def get_epochs():
     epochs = int(epoch_txt.get())
-    print(epochs)
+    # print(epochs)
     return epochs
 
+
 def func():
-   data = preprocess(data = Model.dataset)
+    data = preprocess(data=Model.dataset)
 
-   per = DeepModel(data=data,
-                     num_layers =get_hidden_layers() ,
-                     num_of_neurons = get_num_neurons(),
-                     eta=get_eta(),
-                     epoch=get_epochs(),
-                     activation_function = activations,
-                     bias=bias_checkbox_var.get(),)
+    per = DeepModel(data=data,
+                    num_layers=get_hidden_layers(),
+                    num_of_neurons=get_num_neurons(),
+                    eta=get_eta(),
+                    epoch=get_epochs(),
+                    activation_function=activations,
+                    bias=bias_checkbox_var.get(), )
 
-   per.train()
+    per.Train()
+    per.Test()
+
 
 gui = Tk()
 gui.title('Task_3 GUI')
@@ -79,11 +87,14 @@ activation_function_lbl = Label(gui, text="Choose activation function", fg='blac
 activation_function_lbl.place(x=50, y=400)
 selected_activation_function = tk.StringVar()
 activation_function_cmb = ttk.Combobox(gui, textvariable=selected_activation_function, width=27)
-activation_function_cmb['values'] :  list = [e.name for e in Activation]#("Tanh", "sigmoid")
+activation_function_cmb['values']: list = [e.name for e in Activation]  # ("Tanh", "sigmoid")
 activation_function_cmb.place(x=310, y=400)
-activations : list = [None]*2
+activations: list = [None] * 2
+if activation_function_cmb['values'] == 'tanh':
+    activations = Activation.tanh
+elif activation_function_cmb['values'][1] == 'sigmoid':
+    activations = Activation.sigmoid
 activation_function_cmb.bind('<<ComboboxSelected>>', act_changed)
-
 
 bias_lbl = Label(gui, text="Add bias or not", fg='black', font=("Times New Roman", 14))
 bias_lbl.place(x=50, y=470)
@@ -101,11 +112,9 @@ btn = Button(gui,
              fg='black',
              width=15,
              font=("Times New Roman", 14),
-             command = func)  # command=lambda: [data_entry_error(), func()])
-# btn.bind('<Button-1>',get_hidden_layers)
-# btn.bind('<Button-1>', get_num_neurons)
-# btn.bind('<Button-1>',get_eta)
-# btn.bind('<Button-1>',get_epochs)
+             command=func)  # command=lambda: [data_entry_error(), func()])
+btn.bind('<Button-1>', print_act)
+
 btn.place(x=200, y=545)
 
 gui.mainloop()

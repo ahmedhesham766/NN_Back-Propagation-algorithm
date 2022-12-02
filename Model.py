@@ -97,8 +97,7 @@ class DeepModel:
         # output weights
         if bias:
             self.weights_arr.append(np.random.rand(3, num_of_neurons[num_layers - 1] + 1))
-            # for i in range(num_layers):
-            #     num_of_neurons[i] += 1
+
         else:
             self.weights_arr.append(np.random.rand(3, num_of_neurons[num_layers - 1]))
         self.bias = bias
@@ -127,7 +126,7 @@ class DeepModel:
                 sigmas = self.Backward_Feet(f_nets, self.y_train.values[j])
                 self.Update_Weights(sigmas, f_nets, self.x_train.values[j])
             acc /= len(self.x_train)
-            print(f'train accuracy in epoch {i} = {acc}')
+            # print(f'train accuracy in epoch {i} = {acc}')
 
     def Forward_Feet(self, row_data):
         f_values = []
@@ -250,82 +249,3 @@ class DeepModel:
         print(f'two:\t{confusion_matrix[1][0]}\t|\t{confusion_matrix[1][1]}\t|\t{confusion_matrix[1][2]}\t')
         print(f'three:\t{confusion_matrix[2][0]}\t|\t{confusion_matrix[2][1]}\t|\t{confusion_matrix[2][2]}\t')
         print('--------------------------------')
-    # def train(self):
-    #     x = self.x_train
-    #     y = self.y_train
-    #     for i in range(self.epoch):
-    #         for j in range(len(x)):
-    #             # forward feed
-    #             f_nets = self.Forward_Feed(j, x)
-    #             # print(f_arr)
-    #             # backward feed
-    #             out = []
-    #             if y.values[j] == 0:
-    #                 out = [1, 0, 0]
-    #             elif y.values[j] == 0.5:
-    #                 out = [0, 1, 0]
-    #             elif y.values[j] == 1:
-    #                 out = [0, 0, 1]
-    #
-    #             self.Backward_Feed(f_nets, out)
-
-    # def Backward_Feed(self, f_nets, out):
-    #     sigma_arr = []
-    #     for k in reversed(range(self.num_layers+1)):
-    #         if k == self.num_layers:
-    #             sigma = []
-    #             for l in range(3):
-    #                 temp = f_nets[len(f_nets) - 1][l]
-    #                 sigma.append((out[l] - temp) * temp * (1 - temp))
-    #             sigma_arr.append(sigma)  # arr of sigmas adds the output
-    #         else:
-    #             sigma = []
-    #             for m in range(len(f_nets[k])):
-    #                 print(self.weights_arr[k][m])
-    #                 s = np.transpose(sigma_arr[0]).dot(self.weights_arr[k][m])
-    #                 # s = 0
-    #                 # for l in range(len(sigma_arr[k - 1])):
-    #                 #     s += sigma_arr[0][l] * self.weights_arr[k][l]
-    #                 sigma.append(s * f_nets[k][m])
-    #             sigma_arr.insert(0, sigma)
-    #     return sigma_arr
-
-    # def Forward_Feed(self, j, x):
-    #     f_arr = []  # f_arr[0] the result of the activation fun for all the first layer
-    #     # f_arr[0][0] the result of the activation fun for the first neuron of the first layer
-    #     iteration_data = [x.values[j]]
-    #     for i in range(self.num_layers + 1):
-    #         f_layer = []
-    #         if i != self.num_layers:  # not output layer
-    #             for j in range(self.num_of_neurons[i]):
-    #                 # print(self.weights_arr[k][l])
-    #                 if self.activation_function == Activation.sigmoid:
-    #                     f_layer.append(sigmoid(np.transpose(self.weights_arr[i][j]).dot(iteration_data[i])))
-    #                 elif self.activation_function == Activation.tanh:
-    #                     f_layer.append(tanh(np.transpose(self.weights_arr[i][j]).dot(iteration_data[i])))
-    #         else:
-    #             for j in range(3):
-    #                 if self.activation_function == Activation.sigmoid:
-    #                     f_layer.append(sigmoid(np.transpose(self.weights_arr[i][j]).dot(iteration_data[i])))
-    #                 elif self.activation_function == Activation.tanh:
-    #                     f_layer.append(tanh(np.transpose(self.weights_arr[i][j]).dot(iteration_data[i])))
-    #
-    #         # print(f_layer)
-    #         f_arr.append(f_layer)
-    #         iteration_data.append(f_layer)
-    #     return f_arr
-
-
-data = preprocess(dataset)
-m = DeepModel(data=data, num_layers=2, num_of_neurons=[3, 4], eta=0.1,
-              epoch=1000, activation_function=Activation.tanh, bias=True)
-m.Train()
-m.Test()
-# m.train()
-# import cv2
-# train_data = pd.read_csv('mnist_train.csv')
-# img = train_data.iloc[0][1:]
-# img = np.asarray(img.values)
-# img = img.reshape(28, 28)
-# plt.imshow(img)
-# plt.show()
