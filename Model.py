@@ -120,23 +120,34 @@ class DeepModel:
 
     def Backward_Feed(self, f_nets, out):
         sigma_arr = []
+        sigma_layer= []
         for k in reversed(range(self.num_layers+1)):
-            if k == self.num_layers:
-                sigma = []
+            if(k == 0):
+                break
+            if k == self.num_layers:        
+                sigma = 0
                 for l in range(3):
-                    temp = f_nets[len(f_nets) - 1][l]
-                    sigma.append((out[l] - temp) * temp * (1 - temp))
-                sigma_arr.append(sigma)  # arr of sigmas adds the output
+                        temp = f_nets[k][l] # f_net for each output node l
+                        sigma = (out[l] - temp) * temp * (1 - temp) #sigma for each output node l
+                        sigma_arr.append(sigma)
+                sigma_layer.append(sigma_arr) 
+                #print("sigma_layer:",sigma_layer)
+                for i in range (self.num_of_neurons[k-1]):
+                    for l in range(3):
+                       s = np.transpose(float(self.weights_arr[k][l][i])).dot(sigma_arr[l])              
+                    sigma = (s * f_nets[k-1][i]*(1-f_nets[k-1][i])) #sigma for node i in layer k
+                    sigma_arr.append(sigma)
+                sigma_layer.append(sigma_arr) 
+                print("sigma_layer:",sigma_layer)
             else:
-                sigma = []
-                for m in range(len(f_nets[k])):
-                    print(self.weights_arr[k][m])
-                    s = np.transpose(sigma_arr[0]).dot(self.weights_arr[k][m])
-                    # s = 0
-                    # for l in range(len(sigma_arr[k - 1])):
-                    #     s += sigma_arr[0][l] * self.weights_arr[k][l]
-                    sigma.append(s * f_nets[k][m])
-                sigma_arr.insert(0, sigma)
+                 for i in range (self.num_of_neurons[k-1]):
+                    for l in range(self.num_of_neurons[k]):
+                        s = np.transpose(float(self.weights_arr[k][l][i])).dot(sigma_arr[l])  
+                    sigma = (s * f_nets[k-1][i]*(1-f_nets[k-1][i])) #sigma for node i in layer k
+                    sigma_arr.append(sigma)
+                 sigma_layer.append(sigma_arr)
+                 #print("sigma_arr:",sigma_arr)  
+        #print("sigma_layer:",sigma_layer) 
         return sigma_arr
 
     def Forward_Feed(self, j, x):
@@ -162,11 +173,12 @@ class DeepModel:
             # print(f_layer)
             f_arr.append(f_layer)
             iteration_data.append(f_layer)
+        #print(f_arr)
         return f_arr
 
 
 data = preprocess(dataset)
-m = DeepModel(data=data, num_layers=2, num_of_neurons=[4, 2], eta=0.001,
+m = DeepModel(data=data, num_layers=2, num_of_neurons=[2, 2], eta=0.001,
               epoch=10, activation_function=Activation.sigmoid, bias=False)
 m.train()
 # import cv2
