@@ -318,7 +318,7 @@ class DeepModel:
 
 data = preprocess(dataset)
 m = DeepModel(data=data, num_layers=2, num_of_neurons=[3, 4], eta=0.1,
-              epoch=1000, activation_function=Activation.sigmoid, bias=True)
+              epoch=1000, activation_function=Activation.tanh, bias=True)
 m.Train()
 m.Test()
 # m.train()
